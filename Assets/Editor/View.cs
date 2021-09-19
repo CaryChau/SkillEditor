@@ -10,9 +10,9 @@ namespace ZZBLib
         public EditorWindow popWindow { get; set; }
         public bool isPop => popWindow != null;
         public Rect localRect { get; protected set; }
-        //public Rect rect => new Rect(win.position.)
+        public Rect rect => new Rect(win.position.)
 
-        //public ActionEditorWindow win { get; set; }
+        public ActionEditorWindow win { get; set; }
         public virtual bool checkConfig { get; } = true;
 
         public void Draw(Rect rect)
@@ -47,18 +47,50 @@ namespace ZZBLib
 
             GUI.Box(contentRect, GUIContent.none, AEStyles.view_bg);
 
-            if(!checkConfig)
+            if (!checkConfig)
+            {
+
+            }
         }
 
-        private void OnHeaderDraw()
+        protected abstract void OnGUI(Rect rect);
+        public abstract void OnUpdate();
+
+        protected virtual void OnHeaderDraw()
         {
 
         }
 
-        private void ShowPopWindow()
+        public void ShowPopWindow()
         {
+            if (popWindow != null)
+            {
+                popWindow.Focus();
+                return;
+            }
+            ViewWindow.Show(this, rect);
+        }
+        public void HidePopWindow()
+        {
+            if (popWindow == null)
+            {
+                return;
+            }
+            popWindow.Close();
+            popWindow = null;
 
         }
+
+        public virtual void OnDestroy()
+        {
+            HidePopWindow();
+        }
+
+        public void OnPopDestroy()
+        {
+            popWindow = null;
+        }
+
     }
 
 }
