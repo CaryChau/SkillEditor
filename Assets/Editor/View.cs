@@ -10,7 +10,7 @@ namespace ZZBLib
         public EditorWindow popWindow { get; set; }
         public bool isPop => popWindow != null;
         public Rect localRect { get; protected set; }
-        public Rect rect => new Rect(win.position.)
+        public Rect rect => new Rect(win.position.position + localRect.position, localRect.size);
 
         public ActionEditorWindow win { get; set; }
         public virtual bool checkConfig { get; } = true;
@@ -58,7 +58,7 @@ namespace ZZBLib
 
         protected virtual void OnHeaderDraw()
         {
-
+            
         }
 
         public void ShowPopWindow()

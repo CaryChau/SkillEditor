@@ -89,12 +89,92 @@ namespace ZZBLib
 
         public List<View> views { get; private set; }
 
-        private readonly SceneGUIDDrawer guiDrawer;
+        private readonly SceneGUIDrawer guiDrawer;
         private readonly QuickButtonHandler quickButtonHandler;
 
         #region style
 
         #endregion style
+
+        #region data
+
+        #region raw data
+
+        public static string settingPath = "ZZBLib.ActionEditorWindow";
+        public ActionEditorSetting setting = new ActionEditorSetting();
+        public bool actionMachineDirty = false;
+
+        public bool isRunning => EditorApplication.isPlaying;
+
+        public string lastEditorTargetPath = null;
+        public GameObject actionMachineObj = null;
+        public TextAsset configAsset = null;
+
+
+        #endregion
+
+        public class ViewWindow : EditorWindow
+        {
+            protected View _view;
+            protected ActionEditorWindow _win;
+            protected string _viewTypeName;
+
+            public View view
+            {
+                get
+                {
+                    if(_view != null && _win != null)
+                    {
+                        return _view;
+                    }
+                    Type viewType = Type.GetType(_viewTypeName, false);
+                    if (viewType == null) { return null; }
+                    // 判断是否有窗口实例
+                    if (!HasOpenInstances<ActionEditorWindow>()) { return null; }
+
+                    _win = GetWindow<ActionEditorWindow>();
+                    _view = _win.views.Find(t => t.GetType() == viewType);
+                    _view.popWindow = this;
+                    return _view;
+                }
+                set
+                {
+                    _view = value;
+                    _win = value.win;
+                    _viewTypeName = value.GetType().FullName + "," + value.GetType().Assembly.FullName;
+                    _view.popWindow = this;
+                }
+            }
+            public static ViewWindow Show(View view, Rect rect)
+            {
+                var win = EditorWindow.CreateWindow<ViewWindow>(view.title);
+                win.position = rect;
+                win.view = view;
+                win.Show();
+                return win;
+            }
+            private void OnEnable()
+            {
+                autoRepaintOnSceneChange = true;
+            }
+            private void OnDisable()
+            {
+                
+            }
+            private void OnDestroy()
+            {
+                view?.OnPopDestroy();
+            }
+            private void OnGUI()
+            {
+                if (view == null)
+                    return;
+                Rect contentRect = new Rect(Vector2.zero, this.position.size);
+                view.Draw(contentRect);
+
+                Repaint();
+            }
+        }
     }
 
 }
